@@ -40,3 +40,7 @@ html {
 .post-title {
   font-family: var(--font-press-start-2p);
 }
+
+.post-metadata {
+  color: #6b7280;
+}

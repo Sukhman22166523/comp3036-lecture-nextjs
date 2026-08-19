@@ -48,14 +48,20 @@ export default async function CategoryPage({
 
                 <p>{post.description}</p>
 
-                <p>
-                  <strong>Category:</strong> {post.category}
-                </p>
+                <div className="post-metadata">
+                  <p>
+                    <strong>Tags:</strong> {post.tags}
+                  </p>
 
-                <p>
-                  <strong>Date posted:</strong>{" "}
-                  {post.date.toLocaleDateString("en-AU")}
-                </p>
+                  <p>
+                    <strong>Category:</strong> {post.category}
+                  </p>
+
+                  <p>
+                    <strong>Date posted:</strong>{" "}
+                    {post.date.toLocaleDateString("en-AU")}
+                  </p>
+                </div>
               </article>
             </li>
           ))}
@@ -64,4 +70,5 @@ export default async function CategoryPage({
     </main>
   );
 }
+
 
