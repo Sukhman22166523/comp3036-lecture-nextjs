@@ -1,24 +1,29 @@
 import Link from "next/link";
 import { posts } from "../../../../../packages/db/src/data";
-import { categories } from "../../functions/categories";
 
 export default function CategoriesPage() {
-  const categoryList = categories(posts);
+  const activePosts = posts.filter((post) => post.active);
+
+  const categories = [...new Set(activePosts.map((post) => post.category))];
 
   return (
     <main>
       <h1>Categories</h1>
 
       <ul>
-        {categoryList.map((category) => (
-          <li key={category.name}>
-            <Link
-              href={`/categories/${encodeURIComponent(category.name)}`}
-            >
-              {category.name} ({category.count})
-            </Link>
-          </li>
-        ))}
+        {categories.map((category) => {
+          const count = activePosts.filter(
+            (post) => post.category === category,
+          ).length;
+
+          return (
+            <li key={category}>
+              <Link href={`/categories/${encodeURIComponent(category)}`}>
+                {category} ({count})
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </main>
   );
