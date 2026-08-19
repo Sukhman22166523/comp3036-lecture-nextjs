@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { posts } from "../../../../../../packages/db/src/data";
@@ -23,14 +24,19 @@ export default async function PostDetailsPage({
 
   return (
     <main>
-      <Link
-        href={`/categories/${encodeURIComponent(post.category)}`}
-      >
+      <Link href={`/categories/${encodeURIComponent(post.category)}`}>
         Back to {post.category} posts
       </Link>
 
       <article>
-        <h1>{post.title}</h1>
+        <h1 className="post-title">{post.title}</h1>
+
+        <Image
+          src={post.imageUrl || "/placeholder.webp"}
+          alt={post.title}
+          width={900}
+          height={500}
+        />
 
         <div>
           <p>{post.content}</p>

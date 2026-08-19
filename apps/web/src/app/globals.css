@@ -36,3 +36,7 @@ html {
   --color-wsu: var(--wsu);
   --color-wsu-light: var(--wsu-light);
 }
+
+.post-title {
+  font-family: var(--font-press-start-2p);
+}

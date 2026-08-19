@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { posts } from "../../../../../../packages/db/src/data";
 
@@ -32,6 +33,13 @@ export default async function CategoryPage({
           {categoryPosts.map((post) => (
             <li key={post.id}>
               <article>
+                <Image
+                  src={post.title === "No front end framework is the best" ? "/placeholder.webp" : post.imageUrl || "/placeholder.webp"}
+                  alt={post.title}
+                  width={300}
+                  height={200}
+                />
+
                 <h2>
                   <Link href={`/posts/${post.urlId}`}>
                     {post.title}
@@ -56,3 +64,4 @@ export default async function CategoryPage({
     </main>
   );
 }
+
