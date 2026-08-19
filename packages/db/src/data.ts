@@ -77,8 +77,7 @@ export const posts: Post[] = [
        Sed exercitationem placeat consectetur nulla deserunt vel 
        iusto corrupti dicta laboris incididunt.`,
     content: content + " ... post3",
-    imageUrl:
-      "https://plus.unsplash.com/premium_photo-1661517706036-a48d5fc8f2f5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    imageUrl: "",
     date: new Date("Dec 16, 2024"),
     category: "React",
     tags: "Front-End,Dev Tools",
@@ -104,3 +103,4 @@ export const posts: Post[] = [
     active: false,
   },
 ];
+
