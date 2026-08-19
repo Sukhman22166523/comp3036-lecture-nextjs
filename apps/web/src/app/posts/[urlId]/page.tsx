@@ -45,3 +45,11 @@ export default async function PostDetailsPage({
     </main>
   );
 }
+
+export async function generateStaticParams() {
+  return posts
+    .filter((post) => post.active)
+    .map((post) => ({
+      urlId: post.urlId,
+    }));
+}
