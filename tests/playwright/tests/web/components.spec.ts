@@ -17,9 +17,12 @@ test.describe("Post components", () => {
 
       await expect(postTitle).toBeVisible();
 
-      await page
+      const post = page
+        .locator("article")
+        .filter({ hasText: "Better front ends with Fatboy Slim" });
+
+      await post
         .getByRole("button", { name: "Hide post" })
-        .first()
         .click();
 
       await expect(postTitle).not.toBeVisible();
@@ -34,9 +37,12 @@ test.describe("Post components", () => {
         "Better front ends with Fatboy Slim",
       );
 
-      await page
+      const post = page
+        .locator("article")
+        .filter({ hasText: "Better front ends with Fatboy Slim" });
+
+      await post
         .getByRole("button", { name: "Hide post" })
-        .first()
         .click();
 
       await expect(postTitle).not.toBeVisible();
@@ -57,9 +63,12 @@ test.describe("Post components", () => {
         "Better front ends with Fatboy Slim",
       );
 
-      await page
+      const post = page
+        .locator("article")
+        .filter({ hasText: "Better front ends with Fatboy Slim" });
+
+      await post
         .getByRole("button", { name: "Hide post" })
-        .first()
         .click();
 
       await expect(postTitle).not.toBeVisible();

@@ -1,8 +1,9 @@
 "use client";
 
-import PostImage from "./PostImage";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import PostImage from "./PostImage";
 
 type Post = {
   id: number;
@@ -22,6 +23,8 @@ type PostListProps = {
 const STORAGE_KEY = "hiddenPosts";
 
 export default function PostList({ posts }: PostListProps) {
+  const router = useRouter();
+
   const [hiddenPosts, setHiddenPosts] = useState<number[]>([]);
   const [mounted, setMounted] = useState(false);
 
@@ -41,6 +44,7 @@ export default function PostList({ posts }: PostListProps) {
 
   const hidePost = (id: number) => {
     const updated = [...hiddenPosts, id];
+
     setHiddenPosts(updated);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   };
@@ -79,7 +83,12 @@ export default function PostList({ posts }: PostListProps) {
                 />
 
                 <h2>
-                  <Link href={`/posts/${post.urlId}`}>
+                  <Link
+                    href={`/posts/${post.urlId}`}
+                    onMouseEnter={() =>
+                      router.prefetch(`/posts/${post.urlId}`)
+                    }
+                  >
                     {post.title}
                   </Link>
                 </h2>
@@ -114,5 +123,3 @@ export default function PostList({ posts }: PostListProps) {
     </>
   );
 }
-
-

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { posts } from "../../../../../../packages/db/src/data";
+import { unstable_cache } from "next/cache";
+import { getPostsByCategory } from "@repo/db/queries";
 import PostList from "../../../components/PostList";
 
 type CategoryPageProps = {
@@ -8,28 +9,33 @@ type CategoryPageProps = {
   }>;
 };
 
+const getCachedPostsByCategory = unstable_cache(
+  async (category: string) => getPostsByCategory(category),
+  ["posts-by-category"],
+  {
+    revalidate: 3600,
+    tags: ["posts"],
+  },
+);
+
 export default async function CategoryPage({
   params,
 }: CategoryPageProps) {
   const { category } = await params;
   const decodedCategory = decodeURIComponent(category);
 
-  const categoryPosts = posts
-    .filter(
-      (post) =>
-        post.active &&
-        post.category.toLowerCase() === decodedCategory.toLowerCase(),
-    )
-    .map((post) => ({
-      id: post.id,
-      title: post.title,
-      urlId: post.urlId,
-      description: post.description,
-      imageUrl: post.imageUrl,
-      category: post.category,
-      tags: post.tags,
-      date: post.date.toLocaleDateString("en-AU"),
-    }));
+  const posts = await getCachedPostsByCategory(decodedCategory);
+
+  const categoryPosts = posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    urlId: post.urlId,
+    description: post.description,
+    imageUrl: post.imageUrl,
+    category: post.category,
+    tags: post.tags,
+    date: new Date(post.date).toLocaleDateString("en-AU"),
+  }));
 
   return (
     <main>
