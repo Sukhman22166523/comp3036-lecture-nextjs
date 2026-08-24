@@ -1,20 +1,25 @@
-// import { seed } from "@repo/db/seed";
 import { expect, test } from "./fixtures";
 
-// test.beforeAll(async () => {
-//   await seed();
-// });
-
-test.describe("SPEC NAME", () => {
+test.describe("Home screen", () => {
   test(
-    "Spec details",
+    "shows the blog posts",
     {
-      tag: "@your-tag",
+      tag: "@home",
     },
     async ({ page }) => {
       await page.goto("/");
 
-      await expect(await page.getByText("text")).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Blog Posts" }),
+      ).toBeVisible();
+
+      await expect(
+        page.getByText("Better front ends with Fatboy Slim"),
+      ).toBeVisible();
+
+      await expect(
+        page.getByText("No front end framework is the best"),
+      ).toBeVisible();
     },
   );
 });

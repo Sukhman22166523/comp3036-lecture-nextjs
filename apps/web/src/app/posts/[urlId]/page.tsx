@@ -1,7 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { posts } from "../../../../../../packages/db/src/data";
+import { unstable_cache } from "next/cache";
+import { getPostByUrlId, getPosts } from "@repo/db/queries";
+import LikeButton from "../../../components/LikeButton";
+import EditPostForm from "../../../components/EditPostForm";
 
 type PostDetailsPageProps = {
   params: Promise<{
@@ -9,14 +12,21 @@ type PostDetailsPageProps = {
   }>;
 };
 
+const getCachedPost = unstable_cache(
+  async (urlId: string) => getPostByUrlId(urlId),
+  ["prisma-post"],
+  {
+    revalidate: 3600,
+    tags: ["posts"],
+  },
+);
+
 export default async function PostDetailsPage({
   params,
 }: PostDetailsPageProps) {
   const { urlId } = await params;
 
-  const post = posts.find(
-    (post) => post.active && post.urlId === urlId,
-  );
+  const post = await getCachedPost(urlId);
 
   if (!post) {
     notFound();
@@ -24,7 +34,9 @@ export default async function PostDetailsPage({
 
   return (
     <main>
-      <Link href={`/categories/${encodeURIComponent(post.category)}`}>
+      <Link
+        href={`/categories/${encodeURIComponent(post.category)}`}
+      >
         Back to {post.category} posts
       </Link>
 
@@ -41,15 +53,26 @@ export default async function PostDetailsPage({
         <div>
           <p>{post.content}</p>
         </div>
+
+        <LikeButton
+          postId={post.id}
+          initialLikes={post.Likes.length}
+        />
+
+        <EditPostForm
+          postId={post.id}
+          initialTitle={post.title}
+          initialDescription={post.description}
+        />
       </article>
     </main>
   );
 }
 
 export async function generateStaticParams() {
-  return posts
-    .filter((post) => post.active)
-    .map((post) => ({
-      urlId: post.urlId,
-    }));
+  const posts = await getPosts();
+
+  return posts.map((post) => ({
+    urlId: post.urlId,
+  }));
 }

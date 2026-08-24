@@ -10,14 +10,11 @@ export const createClient = () => {
     return global.prisma;
   }
 
-  const URL = env.DATABASE_URL;
-
   const prisma = new PrismaClient({
-    datasourceUrl: URL,
+    datasourceUrl: env.DATABASE_URL,
   });
 
   console.log("Connected to database");
-  console.log(URL);
 
   global.prisma = prisma;
   return prisma;

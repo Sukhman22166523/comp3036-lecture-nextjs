@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,20 +8,32 @@ datasource db {
 }
 
 model Post {
-  id     Int      @id @default(autoincrement())
-  urlId  String   @unique
-  title  String
-  date   DateTime @default(now())
-  views  Int      @default(0)
-  active Boolean  @default(true)
-  Likes  Like[]
-  // Incomplete
+  id          Int      @id @default(autoincrement())
+  urlId       String   @unique
+  title       String
+  content     String
+  description String
+  imageUrl    String
+  date        DateTime
+  category    String
+  views       Int      @default(0)
+  active      Boolean  @default(true)
+
+  tags  Tag[]  @relation("PostTags")
+  Likes Like[]
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  posts Post[] @relation("PostTags")
 }
 
 model Like {
   postId Int
   userIP String
-  Post   Post   @relation(fields: [postId], references: [id])
+
+  Post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@id([postId, userIP])
 }

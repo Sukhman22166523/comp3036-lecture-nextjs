@@ -28,7 +28,12 @@
     "./seed": {
       "types": "./src/seed.ts",
       "default": "./dist/seed.js"
-    }
+     
+    },
+      "./queries": {
+  "types": "./src/queries.ts",
+  "default": "./dist/queries.js"
+}
   },
   "dependencies": {
     "@repo/env": "workspace:*"

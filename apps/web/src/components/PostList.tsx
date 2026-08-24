@@ -2,6 +2,7 @@
 
 import PostImage from "./PostImage";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Post = {
@@ -22,6 +23,7 @@ type PostListProps = {
 const STORAGE_KEY = "hiddenPosts";
 
 export default function PostList({ posts }: PostListProps) {
+  const router = useRouter();
   const [hiddenPosts, setHiddenPosts] = useState<number[]>([]);
   const [mounted, setMounted] = useState(false);
 
@@ -79,9 +81,14 @@ export default function PostList({ posts }: PostListProps) {
                 />
 
                 <h2>
-                  <Link href={`/posts/${post.urlId}`}>
-                    {post.title}
-                  </Link>
+                  <Link
+  href={`/posts/${post.urlId}`}
+  onMouseEnter={() =>
+    router.prefetch(`/posts/${post.urlId}`)
+  }
+>
+  {post.title}
+</Link>
                 </h2>
 
                 <p>{post.description}</p>
