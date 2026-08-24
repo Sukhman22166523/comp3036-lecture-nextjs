@@ -2,40 +2,42 @@ import { client } from "./client.js";
 import { posts } from "./data.js";
 
 export async function seed() {
-  console.log("🌱 Seeding data");
+  console.log("Seeding MongoDB data...");
 
-  await client.db.like.deleteMany();
-  await client.db.post.deleteMany();
+  const postsCollection = client.db.collection("posts");
+  const likesCollection = client.db.collection("likes");
 
+  // Clear existing data
+  await likesCollection.deleteMany({});
+  await postsCollection.deleteMany({});
+
+  // Add posts
   for (const post of posts) {
-    await client.db.post.create({
-      data: {
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        category: post.category,
-        description: post.description,
-        imageUrl: post.imageUrl,
-        tags: post.tags
-          .split(",")
-          .map((p) => p.trim())
-          .join(","),
-        urlId: post.urlId,
-        active: post.active,
-        date: post.date,
-        views: post.views,
-      },
+    await postsCollection.insertOne({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      category: post.category,
+      description: post.description,
+      imageUrl: post.imageUrl,
+      tags: post.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .join(","),
+      urlId: post.urlId,
+      active: post.active,
+      date: post.date,
+      views: post.views,
     });
 
+    // Add likes for this post
     for (let i = 0; i < post.likes; i++) {
-      await client.db.like.create({
-        data: {
-          postId: post.id,
-          userIP: `192.168.100.${i}`,
-        },
+      await likesCollection.insertOne({
+        postId: post.id,
+        userIP: `192.168.100.${i}`,
       });
     }
   }
 
-  console.log("✅ Seed finished");
+  console.log("MongoDB seed finished");
 }

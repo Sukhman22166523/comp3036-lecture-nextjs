@@ -1,30 +1,24 @@
-import { PrismaClient } from "@prisma/client";
+import { MongoClient } from "mongodb";
 import { env } from "@repo/env/web";
 
 declare global {
-  var prisma: PrismaClient | undefined;
+  var mongoClient: MongoClient | undefined;
 }
 
 export const createClient = () => {
-  if (global.prisma) {
-    return global.prisma;
+  if (global.mongoClient) {
+    return global.mongoClient;
   }
 
-  const URL = env.DATABASE_URL;
+  const mongoClient = new MongoClient(env.DATABASE_URL);
 
-  const prisma = new PrismaClient({
-    datasourceUrl: URL,
-  });
+  global.mongoClient = mongoClient;
 
-  console.log("Connected to database");
-  console.log(URL);
-
-  global.prisma = prisma;
-  return prisma;
+  return mongoClient;
 };
 
 export const client = {
   get db() {
-    return createClient();
+    return createClient().db("comp3036");
   },
 };

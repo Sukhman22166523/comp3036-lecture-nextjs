@@ -1,4 +1,5 @@
 "use server";
+
 import { likePost, updatePost } from "@repo/db/queries";
 import { revalidateTag } from "next/cache";
 
@@ -7,18 +8,19 @@ export async function likePostAction(postId: number) {
     throw new Error("Invalid post ID");
   }
 
-  // Temporary identifier for this exercise.
-  // Later this can come from authentication/request information.
   const userIP = `user-${Date.now()}`;
 
   const post = await likePost(postId, userIP);
 
+  const likes = post?.Likes.length ?? 0;
+
   revalidateTag("posts");
 
   return {
-    likes: post?.Likes.length ?? 0,
+    likes,
   };
 }
+
 export async function updatePostAction(
   postId: number,
   title: string,

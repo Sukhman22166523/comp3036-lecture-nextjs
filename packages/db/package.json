@@ -4,15 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:migrate:dev": "prisma migrate dev",
-    "db:push": "prisma db push",
     "lint": "eslint . --max-warnings 0",
-    "prebuild": "pnpm db:generate",
-    "predev": "pnpm db:generate",
-    "postinstall": "pnpm db:generate",
-    "studio": "prisma studio",
     "dev": "tsc --watch",
     "build": "tsc"
   },
@@ -35,7 +27,8 @@
     }
   },
   "dependencies": {
-    "@repo/env": "workspace:*"
+    "@repo/env": "workspace:*",
+    "mongodb": "^7.5.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

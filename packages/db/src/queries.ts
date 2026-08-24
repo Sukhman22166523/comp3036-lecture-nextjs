@@ -1,54 +1,105 @@
 import { client } from "./client.js";
 
+type PostDocument = {
+  id: number;
+  urlId: string;
+  title: string;
+  content: string;
+  description: string;
+  imageUrl: string;
+  date: Date;
+  category: string;
+  views: number;
+  tags: string;
+  active: boolean;
+};
+
+type LikeDocument = {
+  postId: number;
+  userIP: string;
+};
+
+async function addLikes(posts: PostDocument[]) {
+  const likes = await client.db
+    .collection<LikeDocument>("likes")
+    .find({})
+    .toArray();
+
+  return posts.map((post) => ({
+    ...post,
+    Likes: likes.filter((like) => like.postId === post.id),
+  }));
+}
+
 export async function getPosts() {
-  return client.db.post.findMany({
-    where: {
-      active: true,
-    },
-    include: {
-      Likes: true,
-    },
-   orderBy: {
-  id: "asc",
-},
-  });
+  const posts = await client.db
+    .collection<PostDocument>("posts")
+    .find({ active: true })
+    .sort({ id: 1 })
+    .toArray();
+
+  return addLikes(posts);
 }
 
 export async function getPostByUrlId(urlId: string) {
-  return client.db.post.findFirst({
-    where: {
+  if (typeof urlId !== "string" || urlId.trim().length === 0) {
+    throw new Error("Invalid URL ID");
+  }
+
+  const post = await client.db
+    .collection<PostDocument>("posts")
+    .findOne({
       urlId,
       active: true,
-    },
-    include: {
-      Likes: true,
-    },
-  });
+    });
+
+  if (!post) {
+    return null;
+  }
+
+  const likes = await client.db
+    .collection<LikeDocument>("likes")
+    .find({ postId: post.id })
+    .toArray();
+
+  return {
+    ...post,
+    Likes: likes,
+  };
 }
 
 export async function getPostsByCategory(category: string) {
-  return client.db.post.findMany({
-    where: {
+  if (
+    typeof category !== "string" ||
+    category.trim().length === 0
+  ) {
+    throw new Error("Invalid category");
+  }
+
+  const posts = await client.db
+    .collection<PostDocument>("posts")
+    .find({
       active: true,
-      category: category,
-    },
-    include: {
-      Likes: true,
-    },
-    orderBy: {
-      id: "asc",
-    },
-  });
+      category,
+    })
+    .sort({ id: 1 })
+    .toArray();
+
+  return addLikes(posts);
 }
+
 export async function getAvailableTags() {
-  const posts = await client.db.post.findMany({
-    where: {
-      active: true,
-    },
-    select: {
-      tags: true,
-    },
-  });
+  const posts = await client.db
+    .collection<PostDocument>("posts")
+    .find(
+      { active: true },
+      {
+        projection: {
+          tags: 1,
+        },
+      },
+    )
+    .toArray();
 
   return [
     ...new Set(
@@ -63,57 +114,78 @@ export async function getAvailableTags() {
 }
 
 export async function getPostsByTag(tag: string) {
-  const posts = await client.db.post.findMany({
-    where: {
-      active: true,
-    },
-    include: {
-      Likes: true,
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
+  if (typeof tag !== "string" || tag.trim().length === 0) {
+    throw new Error("Invalid tag");
+  }
 
-  return posts.filter((post) =>
+  const posts = await client.db
+    .collection<PostDocument>("posts")
+    .find({ active: true })
+    .sort({ date: -1 })
+    .toArray();
+
+  const filteredPosts = posts.filter((post) =>
     post.tags
       .split(",")
       .map((item) => item.trim().toLowerCase())
-      .includes(tag.toLowerCase()),
+      .includes(tag.trim().toLowerCase()),
   );
+
+  return addLikes(filteredPosts);
 }
-export async function likePost(postId: number, userIP: string) {
+
+export async function likePost(
+  postId: number,
+  userIP: string,
+) {
   if (!Number.isInteger(postId) || postId <= 0) {
     throw new Error("Invalid post ID");
   }
 
-  if (!userIP || typeof userIP !== "string") {
+  if (
+    typeof userIP !== "string" ||
+    userIP.trim().length === 0
+  ) {
     throw new Error("Invalid user IP");
   }
 
-  await client.db.like.upsert({
-    where: {
-      postId_userIP: {
+  await client.db
+    .collection<LikeDocument>("likes")
+    .updateOne(
+      {
         postId,
         userIP,
       },
-    },
-    update: {},
-    create: {
-      postId,
-      userIP,
-    },
-  });
+      {
+        $setOnInsert: {
+          postId,
+          userIP,
+        },
+      },
+      {
+        upsert: true,
+      },
+    );
 
-  return client.db.post.findUnique({
-    where: {
-      id: postId,
-    },
-    include: {
-      Likes: true,
-    },
-  });
+  const post = await client.db
+    .collection<PostDocument>("posts")
+    .findOne({ id: postId });
+
+  if (!post) {
+    return null;
+  }
+
+  const likes = await client.db
+    .collection<LikeDocument>("likes")
+    .find({ postId })
+    .toArray();
+
+  return {
+    ...post,
+    Likes: likes,
+  };
 }
+
 export async function updatePost(
   postId: number,
   data: {
@@ -139,13 +211,19 @@ export async function updatePost(
     throw new Error("Invalid description");
   }
 
-  return client.db.post.update({
-    where: {
-      id: postId,
-    },
-    data: {
-      title: data.title.trim(),
-      description: data.description.trim(),
-    },
-  });
+  await client.db
+    .collection<PostDocument>("posts")
+    .updateOne(
+      { id: postId },
+      {
+        $set: {
+          title: data.title.trim(),
+          description: data.description.trim(),
+        },
+      },
+    );
+
+  return client.db
+    .collection<PostDocument>("posts")
+    .findOne({ id: postId });
 }
