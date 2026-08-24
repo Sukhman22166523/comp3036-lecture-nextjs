@@ -58,7 +58,10 @@ test.describe("Database features @databases", () => {
   test("can like a post @databases", async ({ page }) => {
     const firstPostLink = page.locator("article h2 a").first();
 
-    await firstPostLink.click();
+   await Promise.all([
+  page.waitForURL(/\/posts\//),
+  firstPostLink.click(),
+]);
 
     const likesText = page.getByText(/^\d+ likes$/);
 
