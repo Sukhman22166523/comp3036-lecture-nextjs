@@ -6,7 +6,7 @@ import styles from "./page.module.css";
 
 const getCachedPosts = unstable_cache(
   async () => getPosts(),
-  ["posts"],
+ ["posts-postgres-v2"],
   {
     revalidate: 3600,
     tags: ["posts"],
@@ -15,7 +15,7 @@ const getCachedPosts = unstable_cache(
 
 const getCachedTags = unstable_cache(
   async () => getAvailableTags(),
-  ["available-tags"],
+  ["available-tags-postgres-v2"],
   {
     revalidate: 3600,
     tags: ["posts"],

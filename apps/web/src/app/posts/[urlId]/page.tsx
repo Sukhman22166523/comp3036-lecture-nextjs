@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { unstable_cache } from "next/cache";
 import { getPostByUrlId, getPosts } from "@repo/db/queries";
 import LikeButton from "../../../components/LikeButton";
 import EditPostForm from "../../../components/EditPostForm";
@@ -12,21 +11,12 @@ type PostDetailsPageProps = {
   }>;
 };
 
-const getCachedPost = unstable_cache(
-  async (urlId: string) => getPostByUrlId(urlId),
-  ["post-by-url"],
-  {
-    revalidate: 3600,
-    tags: ["posts"],
-  },
-);
-
 export default async function PostDetailsPage({
   params,
 }: PostDetailsPageProps) {
   const { urlId } = await params;
 
-  const post = await getCachedPost(urlId);
+  const post = await getPostByUrlId(urlId);
 
   if (!post) {
     notFound();
@@ -47,21 +37,22 @@ export default async function PostDetailsPage({
           width={900}
           height={500}
         />
-<div>
-  <p>{post.content}</p>
-</div>
 
-<LikeButton
-  postId={post.id}
-  initialLikes={post.Likes.length}
-/>
+        <div>
+          <p>{post.content}</p>
+        </div>
 
-<EditPostForm
-  postId={post.id}
-  initialTitle={post.title}
-  initialDescription={post.description}
-/>
-              </article>
+        <LikeButton
+          postId={post.id}
+          initialLikes={post.Likes.length}
+        />
+
+        <EditPostForm
+          postId={post.id}
+          initialTitle={post.title}
+          initialDescription={post.description}
+        />
+      </article>
     </main>
   );
 }
@@ -71,6 +62,5 @@ export async function generateStaticParams() {
 
   return posts.map((post) => ({
     urlId: post.urlId,
-
   }));
 }
