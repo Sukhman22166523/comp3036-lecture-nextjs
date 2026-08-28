@@ -6,7 +6,7 @@ import styles from "./page.module.css";
 
 const getCachedPosts = unstable_cache(
   async () => getPosts(),
-  ["posts"],
+  ["posts-sqlite-v2"],
   {
     revalidate: 3600,
     tags: ["posts"],
@@ -27,6 +27,9 @@ export default async function Home() {
     getCachedPosts(),
     getCachedTags(),
   ]);
+
+  console.log("POSTS RUNTIME:", JSON.stringify(posts, null, 2));
+console.log("TAGS RUNTIME:", JSON.stringify(tags, null, 2));
 
   const formattedPosts = posts.map((post) => ({
     id: post.id,
